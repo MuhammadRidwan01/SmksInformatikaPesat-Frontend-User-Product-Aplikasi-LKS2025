@@ -31,19 +31,25 @@ class Usercontorole extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        return response()->json( $request->all());
+        $user = User::where('email',$request->email)->first();
+        $token = $user->createToken('tokenUser')->plainTextToken;
+        return response()->json( [
+            'massage' => 'akun berhasil di buat',
+            'akun' => $user,
+            'token' => $token,
+        ]);
     }
     public function login(Request $request){
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'password' => 'required|string',
         ]);
-        $user = User::where('email', $request->email)->createToken('tokenUser');
-
+        $user = User::where('email', $request->email)->first();
+        $token = $user->createToken('tokenUser')->plainTextToken;
         return response()->json([
             'message' => 'Token berhasil di buat',
-            'token' => $user,
-        ]);
+            'token' => $token,
+        ], 200);
 
     }
 

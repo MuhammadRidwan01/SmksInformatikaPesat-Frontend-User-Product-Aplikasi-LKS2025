@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\api\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -20,7 +21,19 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama' => 'string| required',
+            'harga' => 'integer|required',
+            'gambar' => 'image| nullable',
+        ]);
+        Product::create([
+            'nama' => $request->nama,
+            'gambar' => 'null',
+            'harga' =>  $request->harga,
+        ]);
+        return request()->json([
+            'Message' => $request->validate()
+        ]);
     }
 
     /**
