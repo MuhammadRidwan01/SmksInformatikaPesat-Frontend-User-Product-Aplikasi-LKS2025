@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
 class Usercontorole extends Controller
@@ -21,17 +22,21 @@ class Usercontorole extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi requst
         $request->validate([
             'name' => 'string|required',
             'email' => 'email|required|unique:users,email,except,id',
             'password' => 'string|required',
         ]);
+        // Jika request benar buat object User
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        // Setelah User berhasil di buat masukan user ke Variabel User
         $user = User::where('email',$request->email)->first();
+        // Ambil Token
         $token = $user->createToken('tokenUser')->plainTextToken;
         return response()->json( [
             'massage' => 'akun berhasil di buat',
@@ -46,6 +51,9 @@ class Usercontorole extends Controller
         ]);
         $user = User::where('email', $request->email)->first();
         $token = $user->createToken('tokenUser')->plainTextToken;
+        Cache::remember('tokenuser', now()->addMinute(3), function () {
+
+        });
         return response()->json([
             'message' => 'Token berhasil di buat',
             'token' => $token,
